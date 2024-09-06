@@ -1,6 +1,6 @@
 /**
  * Finite State Machine for Svelte 5.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: miunau <miunau+npm@miunau.com>
  * License: MIT
  */
