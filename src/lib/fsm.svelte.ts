@@ -1,6 +1,6 @@
 /**
  * Finite State Machine for Svelte 5.
- * Version: 1.0.3
+ * Version: 1.0.4
  * Author: miunau <miunau+npm@miunau.com>
  * License: MIT
  */
@@ -54,6 +54,7 @@ export class FSM<
      */
     async start(context?: Partial<ContextType>): Promise<void> {
         this.log('START:', this.initialState);
+        this.state = this.initialState;
         await this.transition(this.initialState, context);
     }
 
