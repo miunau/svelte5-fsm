@@ -85,11 +85,11 @@
     machine.start();
 <\/script>
 
-<button onclick={() => machine.send('INCREMENT')} class:disabled={machine.currentState === 'full'}>Increment</button>
+<button onclick={() => machine.send('INCREMENT')} class:disabled={machine.state === 'full'}>Increment</button>
 <button onclick={() => machine.send('DECREMENT')} class:disabled={machine.context.count === 0}>Decrement</button>
 <button onclick={() => machine.send('RESET')}>Reset</button>
 <p>
-    Current state: {machine.currentState}<br>
+    Current state: {machine.state}<br>
     Count: {machine.context.count}
 </p>
 `;
@@ -118,11 +118,11 @@ npm install svelte5-fsm
 
 <h2 id="example">Example</h2>
 
-<button onclick={() => machine.send('INCREMENT')} class:disabled={machine.currentState === 'full'}>Increment</button>
+<button onclick={() => machine.send('INCREMENT')} class:disabled={machine.state === 'full'}>Increment</button>
 <button onclick={() => machine.send('DECREMENT')} class:disabled={machine.context.count === 0}>Decrement</button>
 <button onclick={() => machine.send('RESET')}>Reset</button>
 <p>
-    Current state: {machine.currentState}<br>
+    Current state: {machine.state}<br>
     Count: {machine.context.count}
 </p>
 
@@ -157,7 +157,7 @@ npm install svelte5-fsm
 </ul>
 <h4 id="-machine-start-context-context-"><code>machine.start(context?: Context)</code></h4>
 <p>Starts the state machine with the optional context object.</p>
-<h4 id="-machine-currentstate-"><code>machine.currentState</code></h4>
+<h4 id="-machine-state-"><code>machine.state</code></h4>
 <p>The current state of the machine.</p>
 <h4 id="-machine-context-"><code>machine.context</code></h4>
 <p>The context object of the machine.</p>

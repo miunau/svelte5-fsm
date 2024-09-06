@@ -1,6 +1,6 @@
 /**
  * Finite State Machine for Svelte 5.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: miunau <miunau+npm@miunau.com>
  * License: MIT
  */
@@ -21,7 +21,7 @@ export class FSM<
     StateType extends Record<string, FSMState<ContextType, keyof StateType>>
 > {
     public initialState: keyof StateType;
-    public currentState: keyof StateType = $state('');
+    public state: keyof StateType = $state('');
     public states: StateType;
     public context: ContextType = $state({} as ContextType);
     private debug: boolean = true;
@@ -44,7 +44,7 @@ export class FSM<
     }
 
     private log(...message: any[]): void {
-        if (this.debug) console.log('[FSM]', ...message, 'Current:', this.currentState, this.context);
+        if (this.debug) console.log('[FSM]', ...message, 'Current:', this.state, this.context);
     }
 
     /**
@@ -53,10 +53,8 @@ export class FSM<
      * @returns {Promise<void>} - Promise that resolves when the FSM has started.
      */
     async start(context?: Partial<ContextType>): Promise<void> {
-        this.context = { ...this.context, ...context };
-        this.currentState = this.initialState;
         this.log('START:', this.initialState);
-        await this.enter();
+        await this.transition(this.initialState, context);
     }
 
     /**
@@ -68,62 +66,62 @@ export class FSM<
      */
     async send(event: string, data?: any, context?: Partial<ContextType>): Promise<void> {
         this.log('SEND:', event, 'with data:', data);
-        const state = this.states[this.currentState];
+        const state = this.states[this.state];
         if (state.on && state.on[event]) {
             const newState = typeof state.on[event] === 'function' ? state.on[event](this.context, data) : state.on[event];
             await this.transition(newState, context);
         } else {
-            console.error(`Event ${event} not found in state ${String(this.currentState)}`);
+            console.error(`Event ${event} not found in state ${String(this.state)}`);
         }
     }
 
     private async transition(newState: keyof StateType, context: Partial<ContextType> = {}): Promise<void> {
         this.context = { ...this.context, ...context };
-        this.log(`TRANSITION: "${String(this.currentState)}" to "${String(newState)}"`);
+        this.log(`TRANSITION: "${String(this.state)}" to "${String(newState)}"`);
         // run guard if it exists
         if (this.states[newState].guard) {
             this.log('GUARD:', newState);
             const nextState = await this.states[newState].guard!(this.context);
             if (nextState === true) {
-                this.currentState = newState;
+                this.state = newState;
             }
             else if(nextState === false || nextState === undefined) {
-                this.log(`Guard failed for state "${String(newState)}". Staying in "${String(this.currentState)}".`);
+                this.log(`Guard failed for state "${String(newState)}". Staying in "${String(this.state)}".`);
             }
             else if(typeof nextState === 'string') {
                 if(!this.states[nextState]) {
                     throw new Error(`State "${nextState}" returned from guard in "${String(newState)}" does not exist.`);
                 }
-                this.log(`Transitioning to "${String(nextState)}" from guard in ${String(this.currentState)}.`);
+                this.log(`Transitioning to "${String(nextState)}" from guard in ${String(this.state)}.`);
                 return this.transition(nextState);
             }
         } else {
-            this.currentState = newState;
+            this.state = newState;
         }
         await this.enter();
-        if(this.states[this.currentState].goto) {
-            await this.goto(this.states[this.currentState].goto!);
+        if(this.states[this.state].goto) {
+            await this.goto(this.states[this.state].goto!);
         }
     }
 
     private async goto(newState: keyof StateType): Promise<void> {
         // don't allow loops
-        if (this.currentState === newState) {
-            throw new Error(`Goto loop detected in state ${String(this.currentState)} to ${String(newState)}`);
+        if (this.state === newState) {
+            throw new Error(`Goto loop detected in state ${String(this.state)} to ${String(newState)}`);
         }
         this.log('GOTO:', newState);
-        this.currentState = newState;
+        this.state = newState;
         await this.transition(newState);
     }
 
     private async enter(): Promise<void> {
-        if (this.states[this.currentState].enter) {
-            this.log('ENTER:', this.currentState);
+        if (this.states[this.state].enter) {
+            this.log('ENTER:', this.state);
             try {
                 const ret = await Promise.resolve(
-                    this.states[this.currentState].enter!(this.context)
+                    this.states[this.state].enter!(this.context)
                 );
-                this.log('ENTERED:', this.currentState, ret);
+                this.log('ENTERED:', this.state, ret);
                 if (ret) {
                     this.context = ret;
                 }

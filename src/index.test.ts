@@ -41,7 +41,7 @@ describe('FSM test', () => {
 			initial: 'idle',
 		});
 		fsm.start();
-		expect(fsm.currentState).toBe('idle');
+		expect(fsm.state).toBe('idle');
 	});
 	it('sends an event', async () => {
 		const fsm = new FSM({
@@ -63,7 +63,7 @@ describe('FSM test', () => {
 		});
 		fsm.start();
 		await fsm.send('CLICK');
-		expect(fsm.currentState).toBe('loading');
+		expect(fsm.state).toBe('loading');
 	});
 	it('sends an event with context', async () => {
 		const fsm = new FSM({
@@ -106,7 +106,7 @@ describe('FSM test', () => {
 		});
 		fsm.start();
 		await fsm.send('CLICK', null, { count: 1 });
-		expect(fsm.currentState).toBe('loading');
+		expect(fsm.state).toBe('loading');
 	});
 	it('runs guard and fails', async () => {
 		const fsm = new FSM({
@@ -128,7 +128,7 @@ describe('FSM test', () => {
 		});
 		fsm.start();
 		await fsm.send('CLICK', { count: 0 });
-		expect(fsm.currentState).toBe('idle');
+		expect(fsm.state).toBe('idle');
 	});
 	it('runs enter', async () => {
 		const fsm = new FSM({
@@ -195,7 +195,7 @@ describe('FSM test', () => {
 		fsm.start();
 		await fsm.send('CLICK');
 		expect(fsm.context).toEqual({ count: 1 });
-		expect(fsm.currentState).toBe('idle');
+		expect(fsm.state).toBe('idle');
 	});
 	it('can return a state to go to from guard', async () => {
 		const fsm = new FSM({
@@ -219,12 +219,29 @@ describe('FSM test', () => {
 				full: {}
 			} as const,
 			initial: 'idle',
-			debug: true,
 		});
 		fsm.start();
 		await fsm.send('CLICK');
-		expect(fsm.currentState).toBe('idle');
+		expect(fsm.state).toBe('idle');
 		await fsm.send('CLICK');
-		expect(fsm.currentState).toBe('full');
+		expect(fsm.state).toBe('full');
+	});
+	it('runs guard upon initial state', async () => {
+		const fsm = new FSM({
+			context: { count: 0 },
+			states: {
+				idle: {
+					guard: async (context) => {
+						if(context.count === 0) return 'loading';
+						return true;
+					},
+					goto: 'idle'
+				},
+				loading: {}
+			} as const,
+			initial: 'idle',
+		});
+		await fsm.start();
+		expect(fsm.state).toBe('loading');
 	});
 });

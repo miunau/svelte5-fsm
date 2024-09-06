@@ -65,11 +65,11 @@ Alternatively, just copy the `fsm.svelte.ts` file to your project.
     machine.start();
 </script>
 
-<button onclick={() => machine.send('INCREMENT')} class:disabled={machine.currentState === 'full'}>Increment</button>
+<button onclick={() => machine.send('INCREMENT')} class:disabled={machine.state === 'full'}>Increment</button>
 <button onclick={() => machine.send('DECREMENT')} class:disabled={machine.context.count === 0}>Decrement</button>
 <button onclick={() => machine.send('RESET')}>Reset</button>
 <p>
-    Current state: {machine.currentState}<br>
+    Current state: {machine.state}<br>
     Count: {machine.context.count}
 </p>
 ```
@@ -103,7 +103,7 @@ Sends an event to the state machine, which will trigger a state transition. Addi
 #### `machine.start(context?: Context)`
 Starts the state machine from the initial state with the optional context object.
 
-#### `machine.currentState`
+#### `machine.state`
 The current state of the machine (declared as a `$state`).
 
 #### `machine.context`
