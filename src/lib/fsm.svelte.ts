@@ -1,6 +1,6 @@
 /**
  * Finite State Machine for Svelte 5.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: miunau <miunau+npm@miunau.com>
  * License: MIT
  */
@@ -62,6 +62,7 @@ export class FSM<
     /**
      * Send an event to the finite state machine.
      * @param {string} event - Event to send.
+     * @param {any} data - Data to send with the event to the handler.
      * @param {Partial<ContextType>} context - Context to send with the event.
      * @returns {Promise<void>} - Promise that resolves when the event has been sent.
      */

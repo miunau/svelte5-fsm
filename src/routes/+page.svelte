@@ -98,7 +98,7 @@
 
 <h1>svelte5-fsm</h1>
 
-A tiny finite state machine that uses Svelte 5's <code>$state</code> rune for reactive state management.
+<p>A tiny (0.8kB) but surprisingly flexible finite state machine that uses Svelte 5's `$state` rune for reactivity.</p>
 
 <h2 id="installation">Installation</h2>
 
@@ -146,10 +146,13 @@ npm install svelte5-fsm
 </ul>
 </li>
 </ul>
-<h4 id="-machine-send-event-string-data-any-"><code>machine.send(event: string, data?: any)</code></h4>
-<p>Sends an event to the state machine.</p>
+<h4 id="-machine-send-event-string-data-any-"><code>machine.send(event: string, data?: any, context?: Context)</code></h4>
+<p>
+    Sends an event to the state machine, which will trigger a state transition. Additional data can be passed to the event handler. Changes to the context object can be made by passing a context object.
+</p>
 <ul>
 <li><code>event</code> - The event to send.</li>
+<li><code>data</code> - The data to pass to the event handler.</li>
 <li><code>context</code> - The context object to pass to the state.</li>
 </ul>
 <h4 id="-machine-start-context-context-"><code>machine.start(context?: Context)</code></h4>
