@@ -2,41 +2,40 @@
     import { FSM } from '$lib/fsm.svelte.js';
 
     const machine = new FSM({
-        context: { count: 0 },
-        initial: 'idle',
-        debug: true,
-        states: {
-            idle: {
-                guard: (context) => context.count< 5 ? true : 'full',
-                on: {
-                    INCREMENT: 'incrementing',
-                    DECREMENT: 'decrementing',
-                    RESET: (context) => {
-                        context.count = 0;
-                        return 'idle';
-                    }
-                }
-            },
-            incrementing: {
-                guard: (context) => context.count< 5,
-                enter: (context) => { return { ...context, count: context.count + 1 }},
-                goto: 'idle'
-            },
-            full: {
-                on: {
-                    DECREMENT: 'decrementing',
-                    RESET: (context) => {
-                        context.count = 0;
-                        return 'idle';
-                    }
-                }
-            },
-            decrementing: {
-                guard: (context) => context.count > 0,
-                enter: (context) => { return { ...context, count: context.count - 1 }},
-                goto: 'idle'
+        count: 0
+    }, {
+        idle: {
+            guard: (context) => context.count< 5 ? true : 'full',
+            on: {
+                INCREMENT: 'incrementing',
+                DECREMENT: 'decrementing',
+                RESET: 'reset'
             }
-        } as const // This is required to make the state machine type safe
+        },
+        reset: {
+            enter: (context) => { return { ...context, count: 0 }},
+            goto: 'idle'
+        },
+        incrementing: {
+            guard: (context) => context.count< 5,
+            enter: (context) => { return { ...context, count: context.count + 1 }},
+            goto: 'idle'
+        },
+        full: {
+            on: {
+                DECREMENT: 'decrementing',
+                RESET: 'reset'
+            }
+        },
+        decrementing: {
+            guard: (context) => context.count > 0,
+            enter: (context) => { return { ...context, count: context.count - 1 }},
+            goto: 'idle'
+        }
+    } as const,
+    'idle',
+    {
+        debug: true,
     });
 
     machine.start();

@@ -1,6 +1,6 @@
 {
 	"name": "svelte5-fsm",
-	"version": "1.0.4",
+	"version": "1.1.0",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run package",

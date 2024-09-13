@@ -1,6 +1,6 @@
 /**
  * Finite State Machine for Svelte 5.
- * Version: 1.0.4
+ * Version: 1.1.0
  * Author: miunau <miunau+npm@miunau.com>
  * License: MIT
  */
@@ -35,11 +35,11 @@ export class FSM<
      * @param {boolean} opts.debug - Debug mode. Logs internal state changes and function calls.
      * @returns {FSM} - Finite state machine.
      */
-    constructor(config: { context: ContextType; states: StateType; initial: keyof StateType; debug?: boolean; }) {
-        this.context = config.context;
-        this.states = config.states;
-        this.initialState = config.initial;
-        this.debug = config.debug || false;
+    constructor(context: ContextType, states: StateType, initial: keyof StateType, config?: { debug?: boolean; }) {
+        this.context = context;
+        this.states = states;
+        this.initialState = initial;
+        this.debug = config?.debug || false;
         this.log('Created with config:', config);
     }
 

@@ -25,41 +25,40 @@ Alternatively, just copy the `fsm.svelte.ts` file to your project.
     import { FSM } from 'svelte5-fsm';
 
     const machine = new FSM({
-        context: { count: 0 },
-        initial: 'idle',
-        debug: true,
-        states: {
-            idle: {
-                guard: (context) => context.count< 5 ? true : 'full',
-                on: {
-                    INCREMENT: 'incrementing',
-                    DECREMENT: 'decrementing',
-                    RESET: (context) => {
-                        context.count = 0;
-                        return 'idle';
-                    }
-                }
-            },
-            incrementing: {
-                guard: (context) => context.count< 5,
-                enter: (context) => { return { ...context, count: context.count + 1 }},
-                goto: 'idle'
-            },
-            full: {
-                on: {
-                    DECREMENT: 'decrementing',
-                    RESET: (context) => {
-                        context.count = 0;
-                        return 'idle';
-                    }
-                }
-            },
-            decrementing: {
-                guard: (context) => context.count > 0,
-                enter: (context) => { return { ...context, count: context.count - 1 }},
-                goto: 'idle'
+        count: 0
+    }, {
+        idle: {
+            guard: (context) => context.count< 5 ? true : 'full',
+            on: {
+                INCREMENT: 'incrementing',
+                DECREMENT: 'decrementing',
+                RESET: 'reset'
             }
-        } as const // This is required to make the state machine type safe
+        },
+        reset: {
+            enter: (context) => { return { ...context, count: 0 }},
+            goto: 'idle'
+        },
+        incrementing: {
+            guard: (context) => context.count< 5,
+            enter: (context) => { return { ...context, count: context.count + 1 }},
+            goto: 'idle'
+        },
+        full: {
+            on: {
+                DECREMENT: 'decrementing',
+                RESET: 'reset'
+            }
+        },
+        decrementing: {
+            guard: (context) => context.count > 0,
+            enter: (context) => { return { ...context, count: context.count - 1 }},
+            goto: 'idle'
+        }
+    } as const, // Note the `as const` to prevent TypeScript from widening the type
+    'idle',
+    {
+        debug: true,
     });
 
     machine.start();
@@ -78,16 +77,16 @@ Alternatively, just copy the `fsm.svelte.ts` file to your project.
 
 ### `FSM`
 
-#### `new FSM(config: Config)`
+#### `new FSM(context: Context, states: States, initial: string, config?: Config)`
 Creates a new finite state machine.
 
+- `context` - The context object that will be passed to each state.
+- `states` - The state configuration object.
+  - `on` - The event handlers for the state. Can be a string representing the next state, or a function that returns the next state. The context is passed as a parameter to the function.
+  - `guard` - The guard function that determines if the state can be entered. Can return a boolean or a string. If it returns a string, the state machine will transition to that state instead. The context is passed as a parameter to the function.
+  - `enter` - The function that is called when the state is entered. The context is passed as a parameter to the function.
+  - `goto` - State to transition to immediately after entering. Run after `guard` and `enter`.
 - `config` - The configuration object for the state machine.
-  - `context` - The context object that will be passed to each state. If you want type safety on the object, it's recommended to construct it beforehand and pass it as a parameter.
-  - `states` - The state configuration object.
-    - `on` - The event handlers for the state. Can be a string representing the next state, or a function that returns the next state. The context is passed as a parameter to the function.
-    - `guard` - The guard function that determines if the state can be entered. Can return a boolean or a string. If it returns a string, the state machine will transition to that state instead. The context is passed as a parameter to the function.
-    - `enter` - The function that is called when the state is entered. The context is passed as a parameter to the function.
-    - `goto` - State to transition to immediately after entering. Run after `guard` and `enter`.
   - `initial` - The initial state of the machine. Must be a key of the `states` object.
   - `debug` - Whether to log state transitions to the console.
 
@@ -108,6 +107,10 @@ The current state of the machine (declared as a `$state`).
 
 #### `machine.context`
 The context object of the machine (declared as a `$state`).
+
+## Examples
+
+Look at the `src` folder for more examples.
 
 ## License
 
