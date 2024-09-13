@@ -3,9 +3,9 @@ import { FSM } from  './lib/index.js';
 
 describe('FSM test', () => {
 	it('creates a new FSM', () => {
-		const fsm = new FSM({
-			context: { count: 0 },
-			states: {
+		const fsm = new FSM(
+			{ count: 0 },
+			{
 				idle: {
 					on: {
 						CLICK: 'loading'
@@ -17,36 +17,16 @@ describe('FSM test', () => {
 					}
 				}
 			} as const,
-			initial: 'idle',
-		});
-		//expect(1 + 2).toBe(3);
+			'idle',
+		);
 		expect(fsm).toBeDefined();
 		expect(fsm.context).toEqual({ count: 0 });
 	});
+	
 	it('starts the FSM', () => {
-		const fsm = new FSM({
-			context: { count: 0 },
-			states: {
-				idle: {
-					on: {
-						CLICK: 'loading'
-					}
-				},
-				loading: {
-					on: {
-						LOADED: 'idle'
-					}
-				},
-			} as const,
-			initial: 'idle',
-		});
-		fsm.start();
-		expect(fsm.state).toBe('idle');
-	});
-	it('sends an event', async () => {
-		const fsm = new FSM({
-			context: { count: 0 },
-			states: {
+		const fsm = new FSM(
+			{ count: 0 },
+			{
 				idle: {
 					on: {
 						CLICK: 'loading'
@@ -58,17 +38,38 @@ describe('FSM test', () => {
 					}
 				}
 			} as const,
-			initial: 'idle',
-			debug: false
-		});
+			'idle',
+		);
+		fsm.start();
+		expect(fsm.state).toBe('idle');
+	});
+
+	it('sends an event', async () => {
+		const fsm = new FSM(
+			{ count: 0 },
+			{
+				idle: {
+					on: {
+						CLICK: 'loading'
+					}
+				},
+				loading: {
+					on: {
+						LOADED: 'idle'
+					}
+				}
+			} as const,
+			'idle',
+		);
 		fsm.start();
 		await fsm.send('CLICK');
 		expect(fsm.state).toBe('loading');
 	});
+
 	it('sends an event with context', async () => {
-		const fsm = new FSM({
-			context: { count: 0 },
-			states: {
+		const fsm = new FSM(
+			{ count: 0 },
+			{
 				idle: {
 					on: {
 						CLICK: 'loading'
@@ -80,16 +81,17 @@ describe('FSM test', () => {
 					}
 				}
 			} as const,
-			initial: 'idle',
-		});
+			'idle',
+		);
 		fsm.start();
 		await fsm.send('CLICK', null, { count: 1 });
 		expect(fsm.context).toEqual({ count: 1 });
 	});
+
 	it('runs guard', async () => {
-		const fsm = new FSM({
-			context: { count: 0 },
-			states: {
+		const fsm = new FSM(
+			{ count: 0 },
+			{
 				idle: {
 					on: {
 						CLICK: 'loading'
@@ -102,16 +104,17 @@ describe('FSM test', () => {
 					guard: async (context) => context.count === 1
 				}
 			} as const,
-			initial: 'idle',
-		});
+			'idle',
+		);
 		fsm.start();
 		await fsm.send('CLICK', null, { count: 1 });
 		expect(fsm.state).toBe('loading');
 	});
+
 	it('runs guard and fails', async () => {
-		const fsm = new FSM({
-			context: { count: 0 },
-			states: {
+		const fsm = new FSM(
+			{ count: 0 },
+			{
 				idle: {
 					on: {
 						CLICK: 'loading'
@@ -124,16 +127,17 @@ describe('FSM test', () => {
 					guard: async (context) => context.count === 1
 				}
 			} as const,
-			initial: 'idle',
-		});
+			'idle',
+		);
 		fsm.start();
 		await fsm.send('CLICK', { count: 0 });
 		expect(fsm.state).toBe('idle');
 	});
+
 	it('runs enter', async () => {
-		const fsm = new FSM({
-			context: { count: 0 },
-			states: {
+		const fsm = new FSM(
+			{ count: 0 },
+			{
 				idle: {
 					on: {
 						CLICK: 'loading'
@@ -146,21 +150,22 @@ describe('FSM test', () => {
 					}
 				}
 			} as const,
-			initial: 'idle',
-		});
+			'idle',
+		);
 		fsm.start();
 		await fsm.send('CLICK');
 		expect(fsm.context).toEqual({ count: 1 });
 	});
+
 	it('sends some data with the event', async () => {
-		const fsm = new FSM({
-			context: { count: 0 },
-			states: {
+		const fsm = new FSM(
+			{ count: 0 },
+			{
 				idle: {
 					on: {
 						CLICK: (context, data) => {
 							context.count = data;
-							return 'loading';
+							return 'loading' as const;
 						}
 					}
 				},
@@ -170,16 +175,17 @@ describe('FSM test', () => {
 					}
 				}
 			} as const,
-			initial: 'idle',
-		});
+			'idle',
+		);
 		fsm.start();
 		await fsm.send('CLICK', 6);
 		expect(fsm.context).toEqual({ count: 6 });
 	});
+
 	it('runs goto', async () => {
-		const fsm = new FSM({
-			context: { count: 0 },
-			states: {
+		const fsm = new FSM(
+			{ count: 0 },
+			{
 				idle: {
 					on: {
 						CLICK: 'loading'
@@ -190,22 +196,23 @@ describe('FSM test', () => {
 					goto: 'idle'
 				}
 			} as const,
-			initial: 'idle',
-		});
+			'idle',
+		);
 		fsm.start();
 		await fsm.send('CLICK');
 		expect(fsm.context).toEqual({ count: 1 });
 		expect(fsm.state).toBe('idle');
 	});
+
 	it('can return a state to go to from guard', async () => {
-		const fsm = new FSM({
-			context: { count: 0 },
-			states: {
+		const fsm = new FSM(
+			{ count: 0 },
+			{
 				idle: {
 					on: {
 						CLICK: (context, data) => {
 							context.count = context.count + 1;
-							return 'loading';
+							return 'loading' as const;
 						}
 					},
 				},
@@ -218,18 +225,19 @@ describe('FSM test', () => {
 				},
 				full: {}
 			} as const,
-			initial: 'idle',
-		});
+			'idle',
+		);
 		fsm.start();
 		await fsm.send('CLICK');
 		expect(fsm.state).toBe('idle');
 		await fsm.send('CLICK');
 		expect(fsm.state).toBe('full');
 	});
+
 	it('runs guard upon initial state', async () => {
-		const fsm = new FSM({
-			context: { count: 0 },
-			states: {
+		const fsm = new FSM(
+			{ count: 0 },
+			{
 				idle: {
 					guard: async (context) => {
 						if(context.count === 0) return 'loading';
@@ -239,8 +247,8 @@ describe('FSM test', () => {
 				},
 				loading: {}
 			} as const,
-			initial: 'idle',
-		});
+			'idle',
+		);
 		await fsm.start();
 		expect(fsm.state).toBe('loading');
 	});
